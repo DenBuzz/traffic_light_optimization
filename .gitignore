@@ -1,0 +1,4 @@
+tune_data/
+wandb/
+training_data/**
+__pycache__
