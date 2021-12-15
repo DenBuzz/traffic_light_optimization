@@ -127,7 +127,7 @@ GENERAL_CONFIG = {
     'num_gpus': 1,
     'num_workers': 6,
     'render_env': False,
-    'output': '/home/trey/Documents/traffic_light_opt/training_data',
+    'output': './training_data',
     'num_cpus_per_worker': 1,
     'metrics_smoothing_episodes': 10,
 }
@@ -146,9 +146,9 @@ PPO_CONFIG = {
 TUNE_CONFIG = {
     'name': 'testing_tune',
     'run_or_experiment': 'APEX',
-    'stop': {'training_iteration': 1000},
+    'stop': {'training_iteration': 100},
     'config': GENERAL_CONFIG,
-    'local_dir': '/home/trey/Documents/traffic_light_opt/tune_data',
+    'local_dir': './tune_data',
     'checkpoint_freq': 1,
     'checkpoint_at_end': True,
     'checkpoint_score_attr': 'episode_reward_mean',
