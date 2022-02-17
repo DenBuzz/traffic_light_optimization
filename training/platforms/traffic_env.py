@@ -33,7 +33,7 @@ class TrafficEnv(MultiAgentEnv):
         self.sim.random_car_probability = self.sim_random_car_probability
         self.sim.dt = self.sim_dt
         self.observation_space = Box(
-            low=-2, high=1000, shape=(12,), dtype=float)
+            low=-2, high=1000, shape=(16,), dtype=float)
         self.action_space = Discrete(4)
 
     def set_default_config(self):
@@ -117,8 +117,8 @@ if __name__ == '__main__':
         episode_reward = 0
         start_time = time()
         while not dones['__all__']:
-            # for light in data:
-            #     print(data[light])
+            for light in data:
+                print(data[light])
             action_counter += 1
             if action_counter >= action_per:
                 for light in data:

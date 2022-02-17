@@ -121,7 +121,7 @@ GENERAL_CONFIG = {
     },
     'multiagent': {
         'policies': {
-            'traffic_light': (None, Box(low=-2, high=1000, shape=(12,), dtype=float), Discrete(4), {})
+            'traffic_light': (None, Box(low=-2, high=1000, shape=(16,), dtype=float), Discrete(4), {})
         },
         'policy_mapping_fn': lambda _: 'traffic_light',
     },
@@ -156,3 +156,4 @@ TUNE_CONFIG = {
     'checkpoint_score_attr': 'episode_reward_mean',
     'keep_checkpoints_num': 5,
 }
+

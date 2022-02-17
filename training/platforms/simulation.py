@@ -1,4 +1,5 @@
 
+from os import stat
 import random
 
 import numpy as np
@@ -107,8 +108,10 @@ class Simulation(object):
     def get_features(self):
         data = {}
         for light in self.lights:
-            queue_lenghts = light.get_features()
-            data[light.light_id] = np.array(queue_lenghts)**(1/3) - 1
+            features = np.array(light.get_features())
+            queue_features = features[:12]**(1/3) - 1
+            state_feature = features[12:]
+            data[light.light_id] = np.append(queue_features, state_feature)
         return data
 
     def get_rewards(self):

@@ -1,4 +1,5 @@
 import random
+import numpy as np
 from collections import deque
 from itertools import cycle
 
@@ -129,6 +130,10 @@ class TrafficLight(object):
         queue_lengths = []
         for queue in self.queues.values():
             queue_lengths.append(len(queue))
+        current_state = self.current_state.value
+        state_feature = np.zeros(4)
+        state_feature[current_state-1] = 1
+        queue_lengths.extend(state_feature)
         return queue_lengths
 
     def get_reward(self):

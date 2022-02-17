@@ -66,7 +66,7 @@ def branch_light(light: tuple, grid: np.array) -> tuple:
 def grid_to_graph(grid: np.array):
     "Take the grid and convert it to a graph"
     light_coords = get_lights(grid)
-    light_map = {(row, col): TrafficLight((row+1)*100, (col+1)*100) for row, col in light_coords}
+    light_map = {(row, col): TrafficLight((col+1)*100, (row+1)*100) for row, col in light_coords}
     road_pairs = get_road_pairs(grid)
     print(f'Found {len(road_pairs)} roads')
 
@@ -93,7 +93,7 @@ def grid_to_graph(grid: np.array):
 
         graph.add_edge(road1.start, road1.end, road1)
         graph.add_edge(road2.start, road2.end, road2)
-
+    # print(light_map)
     return graph
 
 
@@ -117,6 +117,7 @@ def get_road_pairs(grid: np.array):
         lights = np.where(col == 1)[0]
         for i in range(len(lights)- 1):
             road_pairs.append(((lights[i], j), (lights[i+1], j)))
+    # print(road_pairs)
     
     return road_pairs
 
