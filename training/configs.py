@@ -105,29 +105,41 @@ def create_graph():
         graph.add_edge(rd.start, rd.end, rd)
         rd.start.add_outgoing_road(rd)
         rd.end.add_incoming_road(rd)
+    
+    for i, light in enumerate(graph.get_data()):
+        light.light_id = f'traffic_light_{i}'
 
     return graph
+
+
+graph = generate_graph(grid_size=(5, 4), lights=10)
+
+policies = {f'traffic_light_{i}': (None, Box(low=-2, high=1000, shape=(16,), dtype=float), Discrete(4), {}) for i in range(graph.node_count)}
 
 
 GENERAL_CONFIG = {
     'env': TrafficEnv,
     'env_config': {
         # Either pass a graph or args for generate graph.
-        'graph': {'grid_size': (5, 4), 'lights': 14},
+        'graph': graph,#{'grid_size': (5, 4), 'lights': 14},
         'steps_per_action': 1,
         'sim_dt': 1,
         'sim_random_car_probability': 0.8,
         'episode_length': 10000,
     },
-    'multiagent': {
-        'policies': {
-            'traffic_light': (None, Box(low=-2, high=1000, shape=(16,), dtype=float), Discrete(4), {})
-        },
-        'policy_mapping_fn': lambda _: 'traffic_light',
+    # 'multiagent': {
+    #     'policies': {
+    #         'traffic_light': (None, Box(low=-2, high=1000, shape=(16,), dtype=float), Discrete(4), {})
+    #     },
+    #     'policy_mapping_fn': lambda _: 'traffic_light',
+    # },
+    'multiagent':{
+        'policies': policies,
+        'policy_mapping_fn': lambda x: x,
     },
     'callbacks': MyCallbacks,
     'num_gpus': 1,
-    'num_workers': 6,
+    'num_workers': 4,
     'render_env': False,
     'output': './training_data',
     'num_cpus_per_worker': 1,
@@ -143,11 +155,17 @@ GENERAL_CONFIG = {
 #     }
 # }
 
-# GENERAL_CONFIG.update(PPO_CONFIG)
+# APEX_CONFIG = {
+#     'model': {
+#         'buffer_size':100000        
+#     }
+# }
+
+# GENERAL_CONFIG.update(APEX_CONFIG)
 
 TUNE_CONFIG = {
-    'name': 'testing_tune',
-    'run_or_experiment': 'APEX',
+    'name': 'multi_policy',
+    'run_or_experiment': 'PPO',
     'stop': {'training_iteration': 100},
     'config': GENERAL_CONFIG,
     'local_dir': './tune_data',
