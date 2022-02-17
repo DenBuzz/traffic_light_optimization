@@ -1,4 +1,6 @@
 tune_data/
+.ipynb_checkpoints/
 wandb/
 training_data/**
 __pycache__
+**/__init__*

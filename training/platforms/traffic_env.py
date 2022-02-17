@@ -1,13 +1,17 @@
-import random
-from typing import Tuple
+import os
+import sys
 
-import numpy as np
-from gym.spaces import Box, Discrete
-from ray.rllib.env import MultiAgentEnv
-from ray.rllib.utils.typing import MultiAgentDict
-from training.platforms.helper import LightState
-from training.platforms.render import Window
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../")
 from training.platforms.simulation import Simulation
+from training.platforms.render import Window
+from training.platforms.helper import LightState
+from training.generate_graph import generate_graph
+from ray.rllib.utils.typing import MultiAgentDict
+from ray.rllib.env import MultiAgentEnv
+from gym.spaces import Box, Discrete
+import numpy as np
+from typing import Tuple
+import random
 
 
 class TrafficEnv(MultiAgentEnv):
@@ -28,7 +32,8 @@ class TrafficEnv(MultiAgentEnv):
         self.sim.random_cars = self.sim_random_cars
         self.sim.random_car_probability = self.sim_random_car_probability
         self.sim.dt = self.sim_dt
-        self.observation_space = Box(low=0, high=1000, shape=(12,), dtype=int)
+        self.observation_space = Box(
+            low=-2, high=1000, shape=(12,), dtype=float)
         self.action_space = Discrete(4)
 
     def set_default_config(self):
@@ -91,10 +96,12 @@ if __name__ == '__main__':
 
     from time import sleep, time
 
-    from driver import graph
+    from training.generate_graph import generate_graph
 
-    env = TrafficEnv({'graph': graph, "steps_per_action": 10, 'sim_dt': 1,
-                     'sim_random_car_probability': 0.2, 'episode_length': 10000})
+    # graph = generate_graph((5, 5), lights=12)
+
+    env = TrafficEnv({'graph': {'grid_size': (5, 4), 'lights': 14}, "steps_per_action": 1, 'sim_dt': 0.1,
+                     'sim_random_car_probability': 0.02, 'episode_length': 1000})
 
     episode_rewards = []
     for i in range(3):
@@ -102,7 +109,7 @@ if __name__ == '__main__':
         dones = {'__all__': False}
 
         action_counter = 0
-        action_per = 1
+        action_per = 500
         actions = {}
         for light in data:
             actions[light] = random.randint(0, 3)
@@ -110,6 +117,8 @@ if __name__ == '__main__':
         episode_reward = 0
         start_time = time()
         while not dones['__all__']:
+            # for light in data:
+            #     print(data[light])
             action_counter += 1
             if action_counter >= action_per:
                 for light in data:
@@ -120,7 +129,8 @@ if __name__ == '__main__':
             env.render()
             episode_reward += sum(reward.values())
             # print(reward.values())
-            # sleep(0.015)
+            # sleep(0.01666)
+            sleep(0.001) # 100x Real time
         end_time = time()
         episode_rewards.append(episode_reward)
 

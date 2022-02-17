@@ -56,6 +56,7 @@ class Road(object):
             current_pos = self.cars[i].current_position
             next_pos = current_pos + self.speed_limit * dt / \
                 (60*60) * self.pixels_per_mile  # speed limit in mph, dt in seconds
+            # print(next_pos)
             if next_pos > self.length:  # car has reached end of this road
                 indexes_to_move.append(i)
             self.cars[i].current_position = next_pos

@@ -15,3 +15,4 @@ if __name__ == '__main__':
     #    config={'name': config['name']})
 
     analysis = ray.tune.run(**config)
+    ray.shutdown()

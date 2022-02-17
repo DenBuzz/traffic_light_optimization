@@ -23,7 +23,7 @@ class Window:
 
     def set_default_config(self):
         self.width = 600
-        self.height = 400
+        self.height = 600
         self.fps = 60
         self.bg_color = (230, 230, 230)
 
@@ -95,46 +95,58 @@ class Window:
         center = np.array([light.pos_x, light.pos_y])
         tlw = self.traffic_light_width
 
-        for direction in Direction:
-            if 'L' not in light_state.name:  # not turning left
-                base_polygon = np.array([
-                    [-tlw/2, -tlw/2],
-                    [0, -tlw/2],
-                    [0, -tlw/2 + self.light_state_thickness],
-                    [-tlw/2, -tlw/2 +
-                        self.light_state_thickness]
-                ])
-                if direction.name in light_state.name:
-                    color = (0, 200, 0)
-                else:
-                    color = (200, 0, 0)
+        if light.delaying:
+            square = np.array([
+                [-tlw/3, -tlw/3],
+                [tlw/3, -tlw/3],
+                [tlw/3, tlw/3],
+                [-tlw/3, tlw/3],
+            ])
+            color = (200, 200, 0)
+            poly = center + square
+            pygame.draw.polygon(self.screen, color, poly)
+        
+        else:
+            for direction in Direction:
+                if 'L' not in light_state.name:  # not turning left
+                    base_polygon = np.array([
+                        [-tlw/2, -tlw/2],
+                        [0, -tlw/2],
+                        [0, -tlw/2 + self.light_state_thickness],
+                        [-tlw/2, -tlw/2 +
+                            self.light_state_thickness]
+                    ])
+                    if direction.name in light_state.name:
+                        color = (0, 200, 0)
+                    else:
+                        color = (200, 0, 0)
 
-                rotated_polygon = self._rotate_polygon(
-                    base_polygon, angle=direction.angle)
+                    rotated_polygon = self._rotate_polygon(
+                        base_polygon, angle=direction.angle)
 
-                poly = center + rotated_polygon
-                pygame.draw.polygon(self.screen, color, poly)
+                    poly = center + rotated_polygon
+                    pygame.draw.polygon(self.screen, color, poly)
 
-            else:  # we are turning left!
-                if direction.name in light_state.name:
-                    color = (0, 200, 0)
+                else:  # we are turning left!
+                    if direction.name in light_state.name:
+                        color = (0, 200, 0)
 
-                    if direction.name == 'N':
-                        displacement = tlw * np.array([0, -1])
-                    if direction.name == 'S':
-                        displacement = tlw * np.array([-1, 0])
-                    if direction.name == 'E':
-                        displacement = tlw * np.array([0, 0])
-                    if direction.name == 'W':
-                        displacement = tlw * np.array([-1, -1])
+                        if direction.name == 'N':
+                            displacement = tlw * np.array([0, -1])
+                        if direction.name == 'S':
+                            displacement = tlw * np.array([-1, 0])
+                        if direction.name == 'E':
+                            displacement = tlw * np.array([0, 0])
+                        if direction.name == 'W':
+                            displacement = tlw * np.array([-1, -1])
 
-                    x, y = center + displacement
+                        x, y = center + displacement
 
-                    start_angle = (-direction.angle + 180) * np.pi/180
-                    end_angle = (-direction.angle + 270) * np.pi/180
+                        start_angle = (-direction.angle + 180) * np.pi/180
+                        end_angle = (-direction.angle + 270) * np.pi/180
 
-                    pygame.draw.arc(self.screen, color,
-                                    (x, y, tlw, tlw), start_angle, end_angle, width=2)
+                        pygame.draw.arc(self.screen, color,
+                                        (x, y, tlw, tlw), start_angle, end_angle, width=2)
 
     def draw_road(self, road):
         start_light = road.start
@@ -179,7 +191,7 @@ class Window:
     def draw_car_count(self):
         sim_time = self.sim.time
         time_label = self.font.render(
-            'Sim time:    {}'.format(sim_time), True, (0, 0, 0))
+            'Sim time:    {:.2f}'.format(sim_time), True, (0, 0, 0))
         count = len(self.sim.cars)
         car_count_label = self.font.render(
             'Cars in sim: {}'.format(count), True, (0, 0, 0))

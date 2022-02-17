@@ -7,6 +7,7 @@ from gym.spaces import Box, Discrete
 from ray import tune
 
 from training.callbacks import MyCallbacks
+from training.generate_graph import generate_graph
 from training.platforms.road import Road
 from training.platforms.traffic_env import TrafficEnv
 from training.platforms.traffic_light import TrafficLight
@@ -111,15 +112,16 @@ def create_graph():
 GENERAL_CONFIG = {
     'env': TrafficEnv,
     'env_config': {
-        'graph': create_graph(),
-        'steps_per_action': 10,
+        # Either pass a graph or args for generate graph.
+        'graph': {'grid_size': (5, 4), 'lights': 14},
+        'steps_per_action': 1,
         'sim_dt': 1,
-        'sim_random_car_probability': 0.2,
+        'sim_random_car_probability': 0.8,
         'episode_length': 10000,
     },
     'multiagent': {
         'policies': {
-            'traffic_light': (None, Box(low=0, high=1000, shape=(12,), dtype=int), Discrete(4), {})
+            'traffic_light': (None, Box(low=-2, high=1000, shape=(12,), dtype=float), Discrete(4), {})
         },
         'policy_mapping_fn': lambda _: 'traffic_light',
     },
@@ -132,14 +134,14 @@ GENERAL_CONFIG = {
     'metrics_smoothing_episodes': 10,
 }
 
-PPO_CONFIG = {
-    'model': {
-        'use_lstm': True,
-        'lstm_use_prev_action': True,
-        'lstm_cell_size': 64,
-        'max_seq_len': 20,
-    }
-}
+# PPO_CONFIG = {
+#     'model': {
+#         'use_lstm': True,
+#         'lstm_use_prev_action': True,
+#         'lstm_cell_size': 64,
+#         'max_seq_len': 20,
+#     }
+# }
 
 # GENERAL_CONFIG.update(PPO_CONFIG)
 

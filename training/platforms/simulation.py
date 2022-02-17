@@ -1,8 +1,10 @@
 
 import random
 
+import numpy as np
 from dijkstar import find_path
 from ray.rllib.utils.typing import MultiAgentDict
+from training.generate_graph import generate_graph
 from training.platforms.car import CarLight
 from training.platforms.helper import remove_first_node
 
@@ -13,11 +15,11 @@ class Simulation(object):
     def __init__(self, graph, config={}):
         self.set_default_config()
 
-        self.graph = graph
-        self.lights = list(graph.get_data().keys())
-        for i, light in enumerate(self.lights):
-            light.light_id = 'traffic_light_{}'.format(i)
-        self.get_roads()
+        if type(graph) is dict:  # received args for generate_graph
+            self.graph_args = graph
+        else:
+            self.graph = graph
+
         self.random_cars = True
         self.random_car_probability = 0.05
 
@@ -29,6 +31,7 @@ class Simulation(object):
     def set_default_config(self):
         self.time = 0
         self.dt = 1
+        self.graph_args = None
         # Trying to pull down rewards to something more reasonable
         self.reward_normalization = 1000
 
@@ -70,6 +73,15 @@ class Simulation(object):
 
     def reset(self):
         "Reset the sim data"
+        if self.graph_args is not None:
+            self.graph = generate_graph(**self.graph_args)
+
+        self.lights = list(self.graph.get_data().keys())
+        for i, light in enumerate(self.lights):
+            light.light_id = 'traffic_light_{}'.format(i)
+
+        self.get_roads()
+
         self.time = 0
         self.cars = []
         for light in self.lights:
@@ -96,7 +108,7 @@ class Simulation(object):
         data = {}
         for light in self.lights:
             queue_lenghts = light.get_features()
-            data[light.light_id] = queue_lenghts
+            data[light.light_id] = np.array(queue_lenghts)**(1/3) - 1
         return data
 
     def get_rewards(self):
